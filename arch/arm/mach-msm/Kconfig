@@ -34,7 +34,6 @@ config ARCH_MSM7X27
 	select MULTI_IRQ_HANDLER
 	select MSM_PROC_COMM_REGULATOR
 	select CLEANCACHE
-	select QCACHE
 	select MSM_PM2 if PM
 	select MSM_RUN_QUEUE_STATS if MSM_SOC_REV_A
 	select DONT_MAP_HOLE_AFTER_MEMBANK0
@@ -168,7 +167,6 @@ config ARCH_MSM8960
 	select ARCH_SPARSEMEM_ENABLE
 	select ARCH_HAS_HOLES_MEMORYMODEL
 	select CLEANCACHE
-	select QCACHE
 	select MSM_MULTIMEDIA_USE_ION
 	select MULTI_IRQ_HANDLER
 	select MSM_PM8X60 if PM
@@ -178,6 +176,7 @@ config ARCH_MSM8960
 	select MSM_KRAIT_WFE_FIXUP
 	select MSM_IOMMU_GPU_SYNC
 	select MSM_CPU_PWRCTL
+	select HAS_MACH_MEMUTILS
 	select MSM_AVTIMER
 
 config ARCH_MSM8930
@@ -242,6 +241,7 @@ config ARCH_APQ8064
 	select MSM_KRAIT_WFE_FIXUP
 	select MSM_IOMMU_GPU_SYNC
 	select MSM_CPU_PWRCTL
+	select HAS_MACH_MEMUTILS
 	select MSM_AVTIMER
 
 config ARCH_MSM8974
@@ -914,6 +914,7 @@ config MACH_MSM_DUMMY
 endmenu
 
 source "arch/arm/mach-msm/lge/Kconfig"
+source "arch/arm/mach-msm/asustek/Kconfig"
 
 config MSM_STACKED_MEMORY
 	bool "Stacked Memory"
@@ -1634,7 +1635,7 @@ config MSM_CPU_FREQ_SET_MIN_MAX
 config MSM_CPU_FREQ_MAX
 	int "Max CPU Frequency"
 	depends on MSM_CPU_FREQ_SET_MIN_MAX
-	default 1512000
+	default 2322000
 
 config MSM_CPU_FREQ_MIN
 	int "Min CPU Frequency"
@@ -1642,12 +1643,6 @@ config MSM_CPU_FREQ_MIN
 	default 384000
 
 endif # CPU_FREQ_MSM
-
-config LOW_CPUCLOCKS
-	bool "Enable ultra low CPU clocks"
-	default n
-	help
-	  Ultra low cpu frequencies enabled for CPU and L2 Cache
 
 config MSM_SLEEPER
 	bool "Limit max frequency while screen is off"
@@ -1661,17 +1656,18 @@ config INTELLI_PLUG
 	help
 	  Generic Intelli-plug cpu hotplug driver for ARM SOCs
 
-config USERSPACE_VOLTAGE_CONTROL
-	bool "Enable Userspace CPU Voltage Control"
-	default y
-	help
-	  Userspace Voltage Control
-
-config GPU_OVERCLOCK
-	bool "Enable GPU Overclocking option"
+config CPU_VOLTAGE_TABLE
+	bool "Enable CPU Voltage Table via sysfs for adjustements"
 	default n
 	help
-	  GPU OC to 487.5Mhz
+	  Krait User Votlage Control 
+
+config GPU_VOLTAGE_TABLE
+	bool "Enable GPU Voltage Table via sysfs for adjustements"
+	depends on CPU_VOLTAGE_TABLE
+	default n
+	help
+	  Adreno GPU User Voltage Control 
 
 config MSM_AVS_HW
 	bool "Enable Adaptive Voltage Scaling (AVS)"
@@ -2666,7 +2662,7 @@ config FORCE_FAST_CHARGE
 	bool "Force AC charge mode at will"
 	default y
 	help
-		A simple sysfs interface to force adapters that
-		are detected as USB to charge as AC.
+	  A simple sysfs interface to force adapters that
+	  are detected as USB to charge as AC.
 
 endif

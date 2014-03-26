@@ -21,6 +21,10 @@
 #include <linux/kobject.h>
 #include <linux/ktime.h>
 #include <linux/hrtimer.h>
+#include <linux/delay.h>
+#include <linux/export.h>
+#ifdef CONFIG_MSM_MPDEC_INPUTBOOST_CPUMIN
+#include <linux/input.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/cpu.h>
@@ -356,7 +360,7 @@ static struct notifier_block msm_mpd_hotplug_nb = {
 	.notifier_call = msm_mpd_hotplug_notifier,
 };
 
-static int __cpuinit msm_mpd_do_hotplug(void *data)
+static int msm_mpd_do_hotplug(void *data)
 {
 	int *event = (int *)data;
 	int cpu;

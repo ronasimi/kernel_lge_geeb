@@ -34,6 +34,7 @@ config ARCH_MSM7X27
 	select MULTI_IRQ_HANDLER
 	select MSM_PROC_COMM_REGULATOR
 	select CLEANCACHE
+	select QCACHE
 	select MSM_PM2 if PM
 	select MSM_RUN_QUEUE_STATS if MSM_SOC_REV_A
 	select DONT_MAP_HOLE_AFTER_MEMBANK0
@@ -167,6 +168,7 @@ config ARCH_MSM8960
 	select ARCH_SPARSEMEM_ENABLE
 	select ARCH_HAS_HOLES_MEMORYMODEL
 	select CLEANCACHE
+	select QCACHE
 	select MSM_MULTIMEDIA_USE_ION
 	select MULTI_IRQ_HANDLER
 	select MSM_PM8X60 if PM
@@ -176,6 +178,7 @@ config ARCH_MSM8960
 	select MSM_KRAIT_WFE_FIXUP
 	select MSM_IOMMU_GPU_SYNC
 	select MSM_CPU_PWRCTL
+	select MSM_AVTIMER
 
 config ARCH_MSM8930
 	bool "MSM8930"
@@ -232,12 +235,14 @@ config ARCH_APQ8064
 	select CPU_HAS_L2_PMU
 	select HOLES_IN_ZONE if SPARSEMEM
 	select CLEANCACHE
+	select QCACHE
 	select MIGHT_HAVE_PCI
 	select ARCH_SUPPORTS_MSI
 	select ARM_HAS_SG_CHAIN
 	select MSM_KRAIT_WFE_FIXUP
 	select MSM_IOMMU_GPU_SYNC
 	select MSM_CPU_PWRCTL
+	select MSM_AVTIMER
 
 config ARCH_MSM8974
 	bool "MSM8974"
@@ -1592,6 +1597,21 @@ config MSM_DALRPC_TEST
 	help
 	  Exercises DAL RPC calls to QDSP6.
 
+config MSM_MPDEC
+	bool "Enable kernel based mpdecision"
+	depends on MSM_SMP
+	default n
+	help
+	  This enables kernel based multi core control.
+	  (up/down hotplug based on load)
+
+config MSM_MPDEC_INPUTBOOST_CPUMIN
+	bool "Enable kernel based mpdecision"
+	depends on MSM_MPDEC
+	default n
+	help
+	  This pushes the cpu min speed to predefined values on input events.
+
 if CPU_FREQ_MSM
 
 config MSM_CPU_FREQ_SET_MIN_MAX
@@ -1640,33 +1660,7 @@ config GPU_OVERCLOCK
 	bool "Enable GPU Overclocking option"
 	default n
 	help
-	  APQ8064 GPU overclocking to 487.5
-
-config GPU_OVERCLOCK_450
-        bool "Enable special GPU Overclocking option"
-	depends on GPU_OVERCLOCK
-        default n
-        help
-          APQ8064 GPU overclocking to 450
-
-config CPU_OVERCLOCK
-	bool "Enable CPU Overclocking option"
-	default n
-	help
-	  Krait overclocking up to 1.84 GHz
-
-config OC_ULTIMATE
-	bool "allow 1.944 GHZ max OC option"
-	depends on CPU_OVERCLOCK
-	default n
-	help
-	  Unlock the ultimate Overclock freq speed @ 1.944 GHz
-
-config CPU_VOLTAGE_TABLE
-	bool "Enable CPU Voltage Table via sysfs for adjustements"
-	default n
-	help
-	  Krait User Votlage Control
+	  GPU OC to 487.5Mhz
 
 config MSM_AVS_HW
 	bool "Enable Adaptive Voltage Scaling (AVS)"

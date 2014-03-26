@@ -200,15 +200,6 @@ static struct acpu_level tbl_slow[] __initdata = {
 	{ 0, {  1404000, HFPLL, 1, 0x34 }, L2(14), 1237500 },
 	{ 1, {  1458000, HFPLL, 1, 0x36 }, L2(14), 1237500 },
 	{ 1, {  1512000, HFPLL, 1, 0x38 }, L2(14), 1250000 },
-#ifdef CONFIG_CPU_OVERCLOCK
-	{ 1, {  1620000, HFPLL, 1, 0x3C }, L2(14), 1300000 },
-	{ 1, {  1728000, HFPLL, 1, 0x40 }, L2(14), 1350000 },
-	{ 1, {  1836000, HFPLL, 1, 0x44 }, L2(14), 1400000 },
-#ifdef CONFIG_OC_ULTIMATE
-	{ 1, {  1890000, HFPLL, 1, 0x45 }, L2(14), 1425000 },
-	{ 1, {  1944000, HFPLL, 1, 0x46 }, L2(14), 1450000 },
-#endif
-#endif
 	{ 0, { 0 } }
 };
 
@@ -242,15 +233,6 @@ static struct acpu_level tbl_nom[] __initdata = {
 	{ 0, {  1404000, HFPLL, 1, 0x34 }, L2(14), 1187500 },
 	{ 1, {  1458000, HFPLL, 1, 0x36 }, L2(14), 1187500 },
 	{ 1, {  1512000, HFPLL, 1, 0x38 }, L2(14), 1200000 },
-#ifdef CONFIG_CPU_OVERCLOCK
-	{ 1, {  1620000, HFPLL, 1, 0x3C }, L2(14), 1255000 },
-	{ 1, {  1728000, HFPLL, 1, 0x40 }, L2(14), 1305000 },
-	{ 1, {  1836000, HFPLL, 1, 0x44 }, L2(14), 1355000 },
-#ifdef CONFIG_OC_ULTIMATE
-	{ 1, {  1890000, HFPLL, 1, 0x45 }, L2(14), 1380000 },
-	{ 1, {  1944000, HFPLL, 1, 0x46 }, L2(14), 1405000 },
-#endif
-#endif
 	{ 0, { 0 } }
 };
 
@@ -284,15 +266,6 @@ static struct acpu_level tbl_fast[] __initdata = {
 	{ 0, {  1404000, HFPLL, 1, 0x34 }, L2(14), 1137500 },
 	{ 1, {  1458000, HFPLL, 1, 0x36 }, L2(14), 1137500 },
 	{ 1, {  1512000, HFPLL, 1, 0x38 }, L2(14), 1150000 },
-#ifdef CONFIG_CPU_OVERCLOCK
-	{ 1, {  1620000, HFPLL, 1, 0x3C }, L2(14), 1205000 },
-	{ 1, {  1728000, HFPLL, 1, 0x40 }, L2(14), 1255000 },
-	{ 1, {  1836000, HFPLL, 1, 0x44 }, L2(14), 1305000 },
-#ifdef CONFIG_OC_ULTIMATE
-	{ 1, {  1890000, HFPLL, 1, 0x45 }, L2(14), 1330000 },
-	{ 1, {  1944000, HFPLL, 1, 0x46 }, L2(14), 1355000 },
-#endif
-#endif
 	{ 0, { 0 } }
 };
 
@@ -326,15 +299,6 @@ static struct acpu_level tbl_faster[] __initdata = {
 	{ 0, {  1404000, HFPLL, 1, 0x34 }, L2(14), 1112500 },
 	{ 1, {  1458000, HFPLL, 1, 0x36 }, L2(14), 1112500 },
 	{ 1, {  1512000, HFPLL, 1, 0x38 }, L2(14), 1125000 },
-#ifdef CONFIG_CPU_OVERCLOCK
-	{ 1, {  1620000, HFPLL, 1, 0x3C }, L2(14), 1155000 },
-	{ 1, {  1728000, HFPLL, 1, 0x40 }, L2(14), 1205000 },
-	{ 1, {  1836000, HFPLL, 1, 0x44 }, L2(14), 1255000 },
-#ifdef CONFIG_OC_ULTIMATE
-	{ 1, {  1890000, HFPLL, 1, 0x45 }, L2(14), 1280000 },
-	{ 1, {  1944000, HFPLL, 1, 0x46 }, L2(14), 1305000 },
-#endif
-#endif
 	{ 0, { 0 } }
 };
 

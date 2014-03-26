@@ -192,6 +192,10 @@ int msm_cpufreq_set_freq_limits(uint32_t cpu, uint32_t min, uint32_t max)
 }
 EXPORT_SYMBOL(msm_cpufreq_set_freq_limits);
 
+#ifdef CONFIG_LOW_CPUCLOCKS
+#define LOW_CPUCLOCKS_FREQ_MIN	162000
+#endif
+
 static int msm_cpufreq_init(struct cpufreq_policy *policy)
 {
 	int cur_freq;
@@ -210,12 +214,28 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 		cpumask_setall(policy->cpus);
 
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
-		policy->cpuinfo.min_freq = 384000;
-		policy->cpuinfo.max_freq = 1512000;
-	}
+#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+#ifdef CONFIG_LOW_CPUCLOCKS
+		policy->cpuinfo.min_freq = LOW_CPUCLOCKS_FREQ_MIN;
+#else
+		policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
+#endif
 
-	policy->min = 384000;
-	policy->max = 1512000;
+#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+		policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
+#else
+		policy->cpuinfo.max_freq = 1512000
+#endif
+	}
+#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+#ifdef CONFIG_LOW_CPUCLOCKS
+	policy->min = LOW_CPUCLOCKS_FREQ_MIN;
+#else
+	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
+#endif
+	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
+#endif
+#endif
 
 	cur_freq = acpuclk_get_rate(policy->cpu);
 	if (cpufreq_frequency_table_target(policy, table, cur_freq,
@@ -238,7 +258,7 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 		cur_freq = table[index].frequency;
 	}
 
-	policy->cur = cur_freq;
+	policy->cur = CONFIG_MSM_CPU_FREQ_MAX;
 
 	policy->cpuinfo.transition_latency =
 		acpuclk_get_switch_time() * NSEC_PER_USEC;

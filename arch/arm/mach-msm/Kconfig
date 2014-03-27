@@ -1492,6 +1492,16 @@ config MSM_IPC_ROUTER_SMD_XPRT
 	help
 	  SMD Transport Layer for IPC Router
 
+config MSM_IPC_ROUTER_SECURITY
+	depends on MSM_IPC_ROUTER
+	bool "MSM IPC Router Security support"
+	help
+	  This feature of IPC Router will enforce security rules
+	  configured by a security script from the user-space. IPC Router
+	  once configured with the security rules will ensure that the
+	  sender of the message to a service belongs to the relevant
+	  Linux group as configured by the security script.
+
 config MSM_ONCRPCROUTER_DEBUG
 	depends on MSM_ONCRPCROUTER
 	default y
@@ -1610,7 +1620,7 @@ config MSM_MPDEC_INPUTBOOST_CPUMIN
 	depends on MSM_MPDEC
 	default n
 	help
-	  This pushes the cpu min speed to predefined values on input events.
+	This pushes the cpu min speed to predefined values on input events.
 
 if CPU_FREQ_MSM
 
@@ -1624,12 +1634,12 @@ config MSM_CPU_FREQ_SET_MIN_MAX
 config MSM_CPU_FREQ_MAX
 	int "Max CPU Frequency"
 	depends on MSM_CPU_FREQ_SET_MIN_MAX
-	default 384000
+	default 1512000
 
 config MSM_CPU_FREQ_MIN
 	int "Min CPU Frequency"
 	depends on MSM_CPU_FREQ_SET_MIN_MAX
-	default 245760
+	default 384000
 
 endif # CPU_FREQ_MSM
 
@@ -1639,22 +1649,23 @@ config LOW_CPUCLOCKS
 	help
 	  Ultra low cpu frequencies enabled for CPU and L2 Cache
 
+config MSM_SLEEPER
+	bool "Limit max frequency while screen is off"
+	default y
+	help
+	  Limit max frequency while screen is off
+
 config INTELLI_PLUG
 	bool "Enable intelli-plug cpu hotplug driver"
 	default n
 	help
 	  Generic Intelli-plug cpu hotplug driver for ARM SOCs
 
-config MSM_CPUFREQ_LIMITER
-	tristate "MSM CPU frequency limiter"
-	default n
+config USERSPACE_VOLTAGE_CONTROL
+	bool "Enable Userspace CPU Voltage Control"
+	default y
 	help
-	  This driver limits MSM CPU frequency through sysfs file system.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called cpufreq_stats.
-
-	  If in doubt, say N.
+	  Userspace Voltage Control
 
 config GPU_OVERCLOCK
 	bool "Enable GPU Overclocking option"
@@ -2528,21 +2539,6 @@ config MSM_L1_ERR_PANIC
 
 	  For production builds, you should probably say 'N' here.
 
-config MSM_L1_RECOV_ERR_PANIC
-	bool "Panic on recoverable L1 cache errors"
-	depends on MSM_CACHE_ERP && MSM_L1_ERR_PANIC
-	help
-	  Certain CPU designs may be able to automatically recover from certain
-	  kinds of L1 cache errors, even though the L1 cache itself may not
-	  support error correction. These errors should not result in any kind
-	  of corruption, but their presence is nevertheless an indication of
-	  poor system health. To cause the kernel to panic whenever a
-	  recoverable L1 cache error is detected, say 'Y' here. This may be
-	  useful as a debugging technique if general system instability is
-	  suspected.
-
-	  For production builds, you should definitely say 'N' here.
-
 config MSM_L1_ERR_LOG
 	bool "Log CPU ERP events to system memory"
 	depends on MSM_CACHE_ERP
@@ -2670,7 +2666,7 @@ config FORCE_FAST_CHARGE
 	bool "Force AC charge mode at will"
 	default y
 	help
-	  A simple sysfs interface to force adapters that
-	  are detected as USB to charge as AC.
+		A simple sysfs interface to force adapters that
+		are detected as USB to charge as AC.
 
 endif

@@ -53,7 +53,7 @@ struct cpu_freq {
 static DEFINE_PER_CPU(struct cpu_freq, cpu_freq_info);
 
 /**maxscroff**/
-static int __init cpufreq_read_arg_maxscroff(char *max_so)
+static int cpufreq_read_arg_maxscroff(char *max_so)
 {
     if (strcmp(max_so, "0") == 0) {
         maxscroff = 0;
@@ -468,7 +468,7 @@ static struct cpufreq_driver msm_cpufreq_driver = {
 	.attr		= msm_freq_attr,
 };
 
-static int __init msm_cpufreq_register(void)
+static int msm_cpufreq_register(void)
 {
 	int cpu;
 

@@ -195,18 +195,7 @@ int msm_cpufreq_set_freq_limits(uint32_t cpu, uint32_t min, uint32_t max)
 }
 EXPORT_SYMBOL(msm_cpufreq_set_freq_limits);
 
-#ifdef CONFIG_LOW_CPUCLOCKS
-#define LOW_CPUCLOCKS_FREQ_MIN	162000
-#endif
-
-#ifdef CONFIG_CPU_OVERCLOCK
-#ifdef CONFIG_OC_ULTIMATE
-#define OC_CPU_FREQ_MAX 1944000
-#else
-#define OC_CPU_FREQ_MAX 1836000
-#endif
-#endif
-static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
+static int msm_cpufreq_init(struct cpufreq_policy *policy)
 {
 	int cur_freq;
 	int index;
@@ -225,29 +214,13 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
 #ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-#ifdef CONFIG_LOW_CPUCLOCKS
-		policy->cpuinfo.min_freq = LOW_CPUCLOCKS_FREQ_MIN;
-#else
 		policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
-#endif
-#ifdef CONFIG_CPU_OVERCLOCK
-		policy->cpuinfo.max_freq = OC_CPU_FREQ_MAX;
-#else
 		policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
-#endif
 #endif
 	}
 #ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-#ifdef CONFIG_LOW_CPUCLOCKS
-	policy->min = LOW_CPUCLOCKS_FREQ_MIN;
-#else
 	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
-#endif
-#ifdef CONFIG_CPU_OVERCLOCK
-	policy->max = OC_CPU_FREQ_MAX;
-#else
 	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
-#endif
 #endif
 
 	cur_freq = acpuclk_get_rate(policy->cpu);
@@ -271,15 +244,18 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 		cur_freq = table[index].frequency;
 	}
 
-	policy->cur = CONFIG_MSM_CPU_FREQ_MAX;
+	policy->cur = cur_freq;
 
 	policy->cpuinfo.transition_latency =
 		acpuclk_get_switch_time() * NSEC_PER_USEC;
+	/* set safe default min and max speeds */
+	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
+	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
 
 	return 0;
 }
 
-static int __cpuinit msm_cpufreq_cpu_callback(struct notifier_block *nfb,
+static int msm_cpufreq_cpu_callback(struct notifier_block *nfb,
 		unsigned long action, void *hcpu)
 {
 	unsigned int cpu = (unsigned long)hcpu;
@@ -402,6 +378,7 @@ static int __init msm_cpufreq_register(void)
 
 	register_hotcpu_notifier(&msm_cpufreq_cpu_notifier);
 	register_early_suspend(&msm_cpu_early_suspend_handler);
+
 	return cpufreq_register_driver(&msm_cpufreq_driver);
 }
 

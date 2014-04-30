@@ -20,6 +20,7 @@
 #include <linux/coresight.h>
 #include <asm/clkdev.h>
 #include <mach/kgsl.h>
+#include <linux/android_pmem.h>
 #include <mach/irqs-8960.h>
 #include <mach/dma.h>
 #include <linux/dma-mapping.h>
@@ -115,18 +116,11 @@ static struct resource msm8960_resources_pccntr[] = {
 	},
 };
 
-static struct msm_pm_init_data_type msm_pm_data = {
-	.retention_calls_tz = true,
-};
-
-struct platform_device msm8960_pm_8x60 = {
-	.name		= "pm-8x60",
+struct platform_device msm8960_pc_cntr = {
+	.name		= "pc-cntr",
 	.id		= -1,
 	.num_resources	= ARRAY_SIZE(msm8960_resources_pccntr),
 	.resource	= msm8960_resources_pccntr,
-	.dev = {
-		.platform_data = &msm_pm_data,
-	},
 };
 
 static struct resource resources_otg[] = {
@@ -1646,6 +1640,7 @@ static struct msm_pm_sleep_status_data msm_pm_slp_sts_data = {
 	.cpu_offset = MSM_ACC1_BASE - MSM_ACC0_BASE,
 	.mask = 1UL << 13,
 };
+
 struct platform_device msm8960_cpu_slp_status = {
 	.name		= "cpu_slp_status",
 	.id		= -1,
@@ -1866,7 +1861,7 @@ struct platform_device msm8960_device_qup_i2c_gsbi12 = {
 	.resource	= resources_qup_i2c_gsbi12,
 };
 
-#if defined(CONFIG_MSMB_CAMERA) || defined(CONFIG_MSM_CAMERA)
+#ifdef CONFIG_MSM_CAMERA
 static struct resource msm_cam_gsbi4_i2c_mux_resources[] = {
 	{
 		.name   = "i2c_mux_rw",
@@ -2045,13 +2040,13 @@ struct platform_device msm8960_device_ispif = {
 
 static struct resource msm_vfe_resources[] = {
 	{
-		.name	= "vfe",
+		.name	= "vfe32",
 		.start	= 0x04500000,
 		.end	= 0x04500000 + SZ_1M - 1,
 		.flags	= IORESOURCE_MEM,
 	},
 	{
-		.name	= "vfe",
+		.name	= "vfe32",
 		.start	= VFE_IRQ,
 		.end	= VFE_IRQ,
 		.flags	= IORESOURCE_IRQ,
@@ -2059,7 +2054,7 @@ static struct resource msm_vfe_resources[] = {
 };
 
 struct platform_device msm8960_device_vfe = {
-	.name           = "msm_vfe32",
+	.name           = "msm_vfe",
 	.id             = 0,
 	.resource       = msm_vfe_resources,
 	.num_resources  = ARRAY_SIZE(msm_vfe_resources),
@@ -2569,7 +2564,7 @@ struct platform_device *msm8960_footswitch[] __initdata = {
 	FS_8X60(FS_MDP,    "vdd",	"mdp.0",	&mdp_fs_data),
 	FS_8X60(FS_ROT,    "vdd",	"msm_rotator.0", &rot_fs_data),
 	FS_8X60(FS_IJPEG,  "vdd",	"msm_gemini.0",	&ijpeg_fs_data),
-	FS_8X60(FS_VFE,    "vdd",	"msm_vfe32.0",	&vfe_fs_data),
+	FS_8X60(FS_VFE,    "vdd",	"msm_vfe.0",	&vfe_fs_data),
 	FS_8X60(FS_VPE,    "vdd",	"msm_vpe.0",	&vpe_fs_data),
 	FS_8X60(FS_GFX3D,  "vdd",	"kgsl-3d0.0",	&gfx3d_fs_data),
 	FS_8X60(FS_GFX2D0, "vdd",	"kgsl-2d0.0",	&gfx2d0_fs_data),

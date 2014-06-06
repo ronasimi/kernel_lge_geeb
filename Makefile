@@ -246,8 +246,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = $(CCACHE) gcc
 HOSTCXX      = $(CCACHE) g++
-HOSTCFLAGS   = -Wmissing-prototypes -Wstrict-prototypes -Ofast -fomit-frame-pointer -fgcse-las
-HOSTCXXFLAGS = -Ofast -fgcse-las
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer
+HOSTCXXFLAGS = -O3
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -352,26 +352,11 @@ CHECK		= sparse
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-MODFLAGS        = -DMODULE \
-                  -mfpu=neon-vfpv4 \
-                  -mtune=cortex-a15 \
-		  -fgcse-las \
-		  -fpredictive-commoning \
-                  -Ofast
-
-CFLAGS_MODULE   = $(MODFLAGS)
-AFLAGS_MODULE   = $(MODFLAGS)
-LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
-CFLAGS_KERNEL   = -mfpu=neon-vfpv4 \
-                  -mtune=cortex-a15 \
-		  -fgcse-las \
-		  -fpredictive-commoning \
-                  -Ofast
-
-ifdef CONFIG_CC_GRAPHITE_OPTIMIZATION
-CFLAGS_KERNEL	+= -fgraphite -fgraphite-identity -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block
-endif
-AFLAGS_KERNEL	=
+CFLAGS_MODULE   = -fno-pic
+AFLAGS_MODULE   =
+LDFLAGS_MODULE  =
+CFLAGS_KERNEL	= -mfpu=neon-vfpv4 -ftree-vectorize -funsafe-math-optimizations
+AFLAGS_KERNEL	= -mfpu=neon-vfpv4 -ftree-vectorize -funsafe-math-optimizations
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
@@ -384,17 +369,23 @@ LINUXINCLUDE    := -I$(srctree)/arch/$(hdr-arch)/include \
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
+#
+# AK LINARO OPT
+#
 CFLAGS_A15 = -mtune=cortex-a15 -mfpu=neon-vfpv4 -funsafe-math-optimizations
 CFLAGS_MODULO = -fmodulo-sched -fmodulo-sched-allow-regmoves
-KERNEL_MODS        = $(CFLAGS_A15) $(CFLAGS_MODULO)
- 
-KBUILD_CFLAGS   := -Ofast -funswitch-loops \
- 		           -Wundef -Wstrict-prototypes -Wno-trigraphs \
- 		           -fno-strict-aliasing -fno-common \
- 		           -Werror-implicit-function-declaration \
- 		           -Wno-format-security \
- 		           -fno-delete-null-pointer-checks
- 		           
+KERNEL_MODS	= $(CFLAGS_A15) $(CFLAGS_MODULO)
+
+KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+		   -fno-strict-aliasing -fno-common \
+		   -Werror-implicit-function-declaration \
+		   -Wno-format-security \
+		   -fno-delete-null-pointer-checks \
+		   -ftree-vectorize \
+		   -mno-unaligned-access \
+		   -Wno-sizeof-pointer-memaccess \
+		   $(KERNEL_MODS)
+
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
 KBUILD_AFLAGS   := -D__ASSEMBLY__
@@ -587,17 +578,16 @@ all: vmlinux
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
 else
-KBUILD_CFLAGS	+= -Ofast
-endif
-ifdef CONFIG_CC_GRAPHITE_OPTIMIZATION
-KBUILD_CFLAGS	+= -fgraphite -fgraphite-identity -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block
+KBUILD_CFLAGS	+= -O3
+KBUILD_CFLAGS   += $(call cc-disable-warning,maybe-uninitialized) -fno-inline-functions
+KBUILD_CFLAGS   += $(call cc-disable-warning,array-bounds)
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
 
-ifneq ($(CONFIG_FRAME_WARN),0)
-KBUILD_CFLAGS += $(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN})
-endif
+#ifneq ($(CONFIG_FRAME_WARN),0)
+#KBUILD_CFLAGS += $(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN})
+#endif
 
 # Force gcc to behave correct even for buggy distributions
 ifndef CONFIG_CC_STACKPROTECTOR
@@ -889,7 +879,6 @@ endef
 # Generate .S file with all kernel symbols
 quiet_cmd_kallsyms = KSYM    $@
       cmd_kallsyms = $(NM) -n $< | $(KALLSYMS) \
-                     --page-offset=$(CONFIG_PAGE_OFFSET) \
                      $(if $(CONFIG_KALLSYMS_ALL),--all-symbols) > $@
 
 .tmp_kallsyms1.o .tmp_kallsyms2.o .tmp_kallsyms3.o: %.o: %.S scripts FORCE

@@ -303,7 +303,7 @@ struct hdmi_disp_mode_timing_type
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_2880x240p60_16_9),
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_1440x480p60_4_3),
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_1440x480p60_16_9),
-	//HDMI_SETTINGS_1920x1080p60_16_9,
+	//HDMI_VFRMT_1920x1080p60_16_9_TIMING,
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_1920x1080p60_16_9),
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_720x576p50_4_3),
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_720x576p50_16_9),
@@ -320,12 +320,12 @@ struct hdmi_disp_mode_timing_type
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_1440x576p50_4_3),
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_1440x576p50_16_9),
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_1920x1080p50_16_9),
-	//HDMI_SETTINGS_1920x1080p24_16_9,
+	//HDMI_VFRMT_1920x1080p24_16_9_TIMING,
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_1920x1080p24_16_9),
-	//HDMI_SETTINGS_1920x1080p25_16_9,
+	//HDMI_VFRMT_1920x1080p25_16_9_TIMING,
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_1920x1080p25_16_9),
-	//VFRMT_NOT_SUPPORTED(HDMI_VFRMT_1920x1080p30_16_9),
-	HDMI_SETTINGS_1920x1080p30_16_9,
+	//HDMI_VFRMT_1920x1080p30_16_9_TIMING,
+	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_1920x1080p30_16_9),
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_2880x480p60_4_3),
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_2880x480p60_16_9),
 	VFRMT_NOT_SUPPORTED(HDMI_VFRMT_2880x576p50_4_3),
@@ -1563,7 +1563,7 @@ static void hdmi_edid_detail_desc(const uint8 *data_buf, uint32 *disp_mode)
 
 static void limit_supported_video_format(uint32 *video_format)
 {
-	switch(sp_get_link_bw()){
+	switch(slimport_get_link_bw()){
 	case 0x0a:
 		if((*video_format == HDMI_VFRMT_1920x1080p60_16_9) ||
 			(*video_format == HDMI_VFRMT_2880x480p60_4_3)||
@@ -1602,12 +1602,12 @@ static void add_supported_video_format(
 	boolean mhl_supported = true;
 	limit_supported_video_format(&video_format);
 
-	if (video_format >= HDMI_VFRMT_MAX)
+	if (video_format >= HDMI_VFRMT_END)//HDMI_VFRMT_MAX
 		return;
 
 	timing = hdmi_common_get_supported_mode(video_format);
 	supported = timing != NULL;
-	DEV_INFO("EDID: format: %d [%s], %s\n",
+	DEV_DBG("EDID: format: %d [%s], %s\n",
 		video_format, video_format_2string(video_format),
 		supported ? "Supported" : "Not-Supported");
 
@@ -1615,7 +1615,7 @@ static void add_supported_video_format(
 		const struct hdmi_disp_mode_timing_type *mhl_timing =
 			hdmi_mhl_get_supported_mode(video_format);
 		mhl_supported = mhl_timing != NULL;
-		DEV_INFO("EDID: format: %d [%s], %s by MHL\n",
+		DEV_DBG("EDID: format: %d [%s], %s by MHL\n",
 			video_format, video_format_2string(video_format),
 			mhl_supported ? "Supported" : "Not-Supported");
 	}
@@ -2256,7 +2256,7 @@ bool hdmi_common_get_video_format_from_drv_data(struct msm_fb_data_type *mfd)
 
 	if (userformat) {
 		format = userformat-1;
-		DEV_INFO("reserved format is %d\n", format);
+		DEV_DBG("reserved format is %d\n", format);
 	} else if (hdmi_prim_resolution) {
 		format = hdmi_prim_resolution - 1;
 	} else {
@@ -2289,31 +2289,31 @@ bool hdmi_common_get_video_format_from_drv_data(struct msm_fb_data_type *mfd)
 				: HDMI_VFRMT_1440x576i50_16_9;
 			break;
 		case 1920:
-                        if (mfd->var_yres == 540) {/* interlaced */
-                                format = HDMI_VFRMT_1920x1080i60_16_9;
-                        } else if (mfd->var_yres == 1080) {
-                                if (mfd->var_frame_rate == 50000)
-                                        format = HDMI_VFRMT_1920x1080p50_16_9;
-                                else if (mfd->var_frame_rate == 24000)
-                                        format = HDMI_VFRMT_1920x1080p24_16_9;
-                                else if (mfd->var_frame_rate == 25000)
-                                        format = HDMI_VFRMT_1920x1080p25_16_9;
-                                else if (mfd->var_frame_rate == 30000)
-                                        format = HDMI_VFRMT_1920x1080p30_16_9;
-                                else
-                                        format = HDMI_VFRMT_1920x1080p60_16_9;
-                        }
+			if (mfd->var_yres == 540) {/* interlaced */
+				format = HDMI_VFRMT_1920x1080i60_16_9;
+			} else if (mfd->var_yres == 1080) {
+				if (mfd->var_frame_rate == 50000)
+					format = HDMI_VFRMT_1920x1080p50_16_9;
+				else if (mfd->var_frame_rate == 24000)
+					format = HDMI_VFRMT_1920x1080p24_16_9;
+				else if (mfd->var_frame_rate == 25000)
+					format = HDMI_VFRMT_1920x1080p25_16_9;
+				else if (mfd->var_frame_rate == 30000)
+					format = HDMI_VFRMT_1920x1080p30_16_9;
+				else
+					format = HDMI_VFRMT_1920x1080p60_16_9;
+			}
 			break;
 		}
 	}
 
 	changed = external_common_state->video_resolution != format;
 	if (external_common_state->video_resolution != format)
-		DEV_INFO("switching %s => %s", video_format_2string(
+		DEV_DBG("switching %s => %s", video_format_2string(
 			external_common_state->video_resolution),
 			video_format_2string(format));
 	else
-		DEV_INFO("resolution %s", video_format_2string(
+		DEV_DBG("resolution %s", video_format_2string(
 			external_common_state->video_resolution));
 	external_common_state->video_resolution = format;
 	return changed;
